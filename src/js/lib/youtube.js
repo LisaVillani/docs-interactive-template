@@ -63,15 +63,19 @@ class PimpedYouTubePlayer {
         });
 
         self.player.on('stateChange', event => {
-            let playTimer;
-            if (event.data === YT.PlayerState.PLAYING) {
-                playTimer = setInterval(function() {
-                    self.player.getCurrentTime().then(currentTime => {
-                        sendPercentageCompleteEvents(currentTime);
-                    });
-                }, 1000);
+            if (event.data === YT.PlayerState.ENDED) {
+                trackPlayerEnd();
             } else {
-                clearTimeout(playTimer);
+                let playTimer;
+                if (event.data === YT.PlayerState.PLAYING) {
+                    playTimer = setInterval(function() {
+                        self.player.getCurrentTime().then(currentTime => {
+                            sendPercentageCompleteEvents(currentTime);
+                        });
+                    }, 1000);
+                } else {
+                    clearTimeout(playTimer);
+                }
             }
         });
 
@@ -92,6 +96,9 @@ class PimpedYouTubePlayer {
             }
         }
 
+        function trackPlayerEnd() {
+            self.tracker.track('end');
+        }
     }
 }
 
